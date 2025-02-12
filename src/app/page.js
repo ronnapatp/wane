@@ -1,16 +1,19 @@
 'use client'
 
 import { useState } from "react";
+import schedule from "./scheduling.js"
 
 export default function ScheduleForm() {
+  
+  // schedule(job,studentCount,groups,unavailibleDays); return 2d array of int refering to student id
   const [days, setDays] = useState({
-    Monday: false,
+    Monday: true,
     Tuesday: true,
     Wednesday: true,
-    Thursday: false,
-    Friday: false,
+    Thursday: true,
+    Friday: true,
   });
-  const [job, setJob] = useState([['']]);
+  const [job, setJob] = useState(['']);
   const [studentCount, setStudentCount] = useState(0);
   const [groups, setGroups] = useState([['']]);
   const [avoidGroups, setAvoidGroups] = useState([['']]);
@@ -35,6 +38,7 @@ export default function ScheduleForm() {
       return newGroups;
     });
   };
+
 
   return (
     <div className="max-w-lg mt-10 mb-10 mx-auto p-6 bg-white shadow-lg rounded-2xl space-y-6 text-black">
@@ -118,7 +122,7 @@ export default function ScheduleForm() {
         <button className="mt-2 w-full bg-gray-200 p-2 rounded-md" onClick={() => addGroup(setUnavailableDays)}>เพิ่มคน</button>
       </div>
 
-      <button className="mt-2 w-full bg-gray-600 text-white font-bold p-2 rounded-md">จัดเวร</button>
+      <button className="mt-2 w-full bg-gray-600 text-white font-bold p-2 rounded-md" >จัดเวร</button>
 
     </div>
   );
