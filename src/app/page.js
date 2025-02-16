@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from "react";
-import schedule from "./scheduling.js"
+import schedule from "./lib/scheduling.js"
 
 export default function ScheduleForm() {
   

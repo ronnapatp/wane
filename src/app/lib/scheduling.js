@@ -1,16 +1,16 @@
 
-const days = {Monday: true,
-    Tuesday: true,
-    Wednesday: true,
-    Thursday: true,
-    Friday: true}
+// const days = {Monday: true,
+//     Tuesday: true,
+//     Wednesday: true,
+//     Thursday: true,
+//     Friday: true} // also not used
 
-const job = ['mopping'];
-const studentCount = 15;
-const groups = [[1,2,3,4],[5,6],[7,8,9,10]]; // distinct elements
-const avoidGroups = [[1,5],[5,9]]; // may only take pairs
-const unavailableDays = [[2,["Tuesday","Wednesday","Thursday","Friday"]]]; // may not include all 5 days
-// there is probability that a group maybe avoided
+// const job = ['mopping']; // not actually used
+// const studentCount = 15;
+// const groups = [[1,2,3,4],[5,6],[7,8,9,10]]; // distinct elements
+// const avoidGroups = [[1,5],[5,9]]; // may only take pairs
+// const unavailableDays = [[2,["Tuesday","Wednesday","Thursday","Friday"]]]; // may not include all 5 days
+// // there is probability that a group maybe avoided
 
 function schedule(days, job, studentCount, groups, avoidGroups, unavailableDays)
 { 
@@ -124,7 +124,8 @@ function schedule(days, job, studentCount, groups, avoidGroups, unavailableDays)
         }
     return mdays;   
 }
-console.log(schedule(days, job, studentCount, groups, avoidGroups, unavailableDays));
+
+// console.log(schedule(days, job, studentCount, groups, avoidGroups, unavailableDays));
 
 // [
 //     [
