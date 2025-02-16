@@ -5,7 +5,7 @@ import schedule from "./scheduling.js"
 
 export default function ScheduleForm() {
   
-  // schedule(job,studentCount,groups,unavailibleDays); return 2d array of int refering to student id
+// schedule(days, job, studentCount, groups, avoidGroups, unavailableDays) return 2d array of int refering to student id
   const [days, setDays] = useState({
     Monday: true,
     Tuesday: true,

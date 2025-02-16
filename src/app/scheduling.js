@@ -7,24 +7,19 @@ const days = {Monday: true,
 
 const job = ['mopping'];
 const studentCount = 15;
-const groups = [[1,2,3,4],[5,6],[7,8,9,10]];
+const groups = [[1,2,3,4],[5,6],[7,8,9,10]]; // distinct elements
 const avoidGroups = [[1,5],[5,9]]; // may only take pairs
-const unavailableDays = [[2,["Tuesday","Wednesday","Thursday","Friday"]]];
+const unavailableDays = [[2,["Tuesday","Wednesday","Thursday","Friday"]]]; // may not include all 5 days
+// there is probability that a group maybe avoided
 
 function schedule(days, job, studentCount, groups, avoidGroups, unavailableDays)
 { 
     const restraint = [[[],[]],[[],[]],[[],[]],[[],[]],[[],[]]];
-    const out = [[0,[]],[0,[]],[0,[]],[0,[]],[0,[]]];
-    let uDays = 0;
-    let jobs = job.length;
+    const out = [[0,0],[0,1],[0,2],[0,3],[0,4]];
     const students = []; 
     const grouped = [];
-    for (const [key, value] of Object.entries(days))
-    {
-      if(value)
-        uDays++;
-    }
-    const acc = Math.ceil(studentCount / uDays);
+    const wdays = [[],[],[],[],[]];
+    const mdays = [[],[],[],[],[]];
     for(let i = 0; i < groups.length; i++)
     {
       for(let j = 0; j < groups[i].length; j++)
@@ -78,20 +73,71 @@ function schedule(days, job, studentCount, groups, avoidGroups, unavailableDays)
         }
       }
     }
-    students.sort((a, b) =>  b[0] - a[0]);
-    console.log(students);
-    for (let i = 0, pointer = 0, mx = 0; i < students.length; i++,pointer = ((pointer + 1) % 5)) {
-      const item = students[i][0];
-      while(out[pointer][0] + item > mx)
-      {
-        if(pointer == 4)
-          mx++;
-        pointer = ((pointer + 1) % 5);
-      }
-      out[pointer][0] = out[pointer][0] + item;
-      mx = Math.max(mx,out[pointer][0]);
+    students.sort(function(a, b) { if(b[2].length == a[2].length && b[3].length == a[3].length)return b[0] - a[0];if(b[2].length == a[2].length) return b[3].length - a[3].length; return  b[2].length - a[2].length});
+    function canAccept(item,pointer,wdays){
+        let days = ['Monday','Tuesday','Wednesday','Thursday','Friday']
+        for(let d = 0 ; d < 5 ;d++)
+        {
+            if(pointer == d && !item[2].includes(days[d]))
+                {
+                    for(let i = 0 ; i < item[3].length; i++)
+                    {
+                        if(wdays[d].includes(item[3][i]))
+                        {
+                            console.log(days[d],' has the student ',item[3][i],' already');
+                            return false;
+                        }
+                    }
+                    return true;
+                }
+        }
+        console.log('all days are  full');
+        return false;
     }
-    return out;
+    for (let i = 0; i < students.length;i++) {
+        const item = students[i];
+        out.sort((a,b) => a[0] - b[0]);
+        for(let j = 0; j < 5; j++)
+        {
+            if(canAccept(item,out[j][1],wdays))
+            {
+                out[j][0] += item[0];
+                for(let k = 0; k < item[3].length; k++)
+                {
+                    if(!wdays[out[j][1]].includes(item[3][k]))
+                    {
+                        wdays[out[j][1]].push(item[3][k]);
+                    }
+                }
+                for(let k = 0 ; k < item[0]; k++)
+                {
+                    mdays[out[j][1]].push(item[1][k]);
+                }
+                break;
+            }
+        }
+    }
+    out.sort((a,b) => a[1] - b[1]);
+    for(let i =0; i < 5;i++)
+        {
+            out[i][1] =mdays[i];
+        }
+    return mdays;   
 }
-
 console.log(schedule(days, job, studentCount, groups, avoidGroups, unavailableDays));
+
+// [
+//     [
+//       4,
+//       [ 1, 2, 3, 4 ],
+//       [ 'Tuesday', 'Wednesday', 'Thursday', 'Friday' ],
+//       [ 5 ]
+//     ],
+//     [ 2, [ 5, 6 ], [], [ 1, 9 ] ],
+//     [ 4, [ 7, 8, 9, 10 ], [], [ 5 ] ],
+//     [ 1, [ 11 ], [], [] ],
+//     [ 1, [ 12 ], [], [] ],
+//     [ 1, [ 13 ], [], [] ],
+//     [ 1, [ 14 ], [], [] ],
+//     [ 1, [ 15 ], [], [] ]
+//   ]
