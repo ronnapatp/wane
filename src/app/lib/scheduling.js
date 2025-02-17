@@ -12,7 +12,7 @@
 // const unavailableDays = [[2,["Tuesday","Wednesday","Thursday","Friday"]]]; // may not include all 5 days
 // // there is probability that a group maybe avoided
 
-function schedule(days, job, studentCount, groups, avoidGroups, unavailableDays)
+export default function schedule(days, job, studentCount, groups, avoidGroups, unavailableDays)
 { 
     const restraint = [[[],[]],[[],[]],[[],[]],[[],[]],[[],[]]];
     const out = [[0,0],[0,1],[0,2],[0,3],[0,4]];
