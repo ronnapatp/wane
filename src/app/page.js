@@ -1,11 +1,13 @@
 'use client'
 
 import { useState } from "react";
+import { useRouter } from 'next/navigation';
 import schedule from "./lib/scheduling.js"
 
 export default function ScheduleForm() {
   
-// schedule(days, job, studentCount, groups, avoidGroups, unavailableDays) return 2d array of int refering to student id
+  const router = useRouter();
+  
   const [days, setDays] = useState({
     Monday: true,
     Tuesday: true,
@@ -20,25 +22,67 @@ export default function ScheduleForm() {
   const [unavailableDays, setUnavailableDays] = useState([['', '']]);
 
   const studentNumbers = Array.from({ length: studentCount }, (_, i) => (i + 1).toString());
-
+  
   const selectedStudents = new Set(groups.flat().concat(avoidGroups.flat()));
   const availableStudents = studentNumbers.filter(num => !selectedStudents.has(num));
 
   const addGroup = (setFunction) => {
-    setFunction((prev) => [...prev, ['']]);
+    setFunction((prev) => [...prev, ['', '']]); // Add an empty student and day pair
   };
 
   const handleStudentSelection = (groupIndex, studentIndex, setFunction) => (e) => {
     setFunction((prev) => {
-      const newGroups = [...prev];
-      newGroups[groupIndex][studentIndex] = e.target.value;
+      const newGroups = prev.map((group, i) =>
+        i === groupIndex
+          ? group.map((student, j) => (j === studentIndex ? e.target.value : student))
+          : group
+      );
+  
       if (!newGroups[groupIndex].includes("")) {
-        newGroups[groupIndex].push(" ");
+        newGroups[groupIndex].push("");
       }
+  
       return newGroups;
     });
   };
+  
+  const handleUnavailableSelection = (index, type) => (e) => {
+    const newUnavailableDays = [...unavailableDays];
+    const value = e.target.value;
+  
+    // Update the corresponding day (type 1) for the student (type 0)
+    if (type === 1) {
+      newUnavailableDays[index][1] = value;
+    } else {
+      newUnavailableDays[index][0] = value;
+    }
+  
+    setUnavailableDays(newUnavailableDays);
+  };
 
+  const handleSchedule = () => {
+    const selectedDays = Object.keys(days).filter(day => days[day]);
+  
+    // Format groups and avoidGroups to remove empty values
+    const formattedGroups = groups.map(group => group.filter(student => student !== ""));
+    const formattedAvoidGroups = avoidGroups.map(group => group.filter(student => student !== ""));
+    
+    // Format unavailableDays to match the expected format [studentId, 'day']
+    const formattedUnavailableDays = unavailableDays
+      .filter(entry => entry[0] !== "" && entry[1] !== "")
+      .map(entry => [entry[0], entry[1]]);
+    
+    console.log(formattedUnavailableDays)
+  
+    const result = schedule(selectedDays, job, studentCount, formattedGroups, formattedAvoidGroups, formattedUnavailableDays);
+    
+    // Redirect to the result page with the schedule data
+    const queryParams = new URLSearchParams({
+      data: JSON.stringify(result)
+    }).toString();
+  
+    // router.push(`/result?${queryParams}`);
+  };
 
   return (
     <div className="max-w-lg mt-10 mb-10 mx-auto p-6 bg-white shadow-lg rounded-2xl space-y-6 text-black">
@@ -61,11 +105,10 @@ export default function ScheduleForm() {
         <h2 className="font-semibold">หน้าที่</h2>
         {job.map((_, index) => (
           <div key={index} className="flex space-x-2 mt-2">
-            <input className="w-full border p-2 rounded-md">
-            </input>
+            <input className="w-full border p-2 rounded-md" />
           </div>
         ))}
-        <button className="mt-2 w-full bg-gray-200 p-2 rounded-md" onClick={() => addGroup(setJob)}>เพิ่มคน</button>
+        <button className="mt-2 w-full bg-gray-200 p-2 rounded-md" onClick={() => addGroup(setJob)}>เพิ่มงาน</button>
       </div>
       
       <div>
@@ -74,9 +117,14 @@ export default function ScheduleForm() {
           <div key={groupIndex} className="p-3 border rounded-md mb-3">
             <p className="font-medium">Group {groupIndex + 1}</p>
             {group.map((student, studentIndex) => (
-              <select key={studentIndex} className="w-full mt-2 border p-2 rounded-md" onChange={handleStudentSelection(groupIndex, studentIndex, setGroups)}>
+              <select
+                key={studentIndex}
+                className="w-full mt-2 border p-2 rounded-md"
+                value={groups[groupIndex][studentIndex]}
+                onChange={handleStudentSelection(groupIndex, studentIndex, setGroups)}
+              >
                 <option value="">เลือกนักเรียน</option>
-                {availableStudents.map((num) => (
+                {studentNumbers.map((num) => (
                   <option key={num} value={num}>นักเรียน {num}</option>
                 ))}
               </select>
@@ -92,9 +140,14 @@ export default function ScheduleForm() {
           <div key={groupIndex} className="p-3 border rounded-md mb-3">
             <p className="font-medium">Group {groupIndex + 1}</p>
             {group.map((student, studentIndex) => (
-              <select key={studentIndex} className="w-full mt-2 border p-2 rounded-md" onChange={handleStudentSelection(groupIndex, studentIndex, setAvoidGroups)}>
+              <select
+                key={studentIndex}
+                className="w-full mt-2 border p-2 rounded-md"
+                value={avoidGroups[groupIndex][studentIndex]}
+                onChange={handleStudentSelection(groupIndex, studentIndex, setAvoidGroups)}
+              >
                 <option value="">เลือกนักเรียน</option>
-                {availableStudents.map((num) => (
+                {studentNumbers.map((num) => (
                   <option key={num} value={num}>นักเรียน {num}</option>
                 ))}
               </select>
@@ -108,22 +161,37 @@ export default function ScheduleForm() {
         <h2 className="font-semibold">คนที่มีวันไม่ว่าง</h2>
         {unavailableDays.map((_, index) => (
           <div key={index} className="flex space-x-2 mt-2">
-            <select className="w-1/2 border p-2 rounded-md">
+            <select
+              className="w-1/2 border p-2 rounded-md"
+              value={unavailableDays[index][0]} // student ID
+              onChange={handleUnavailableSelection(index, 0)} // Update student selection
+            >
               <option value="">เลือกนักเรียน</option>
               {studentNumbers.map((num) => (
                 <option key={num} value={num}>นักเรียน {num}</option>
               ))}
             </select>
-            <select className="w-1/2 border p-2 rounded-md">
+            <select
+              className="w-1/2 border p-2 rounded-md"
+              value={unavailableDays[index][1]} // unavailable day
+              onChange={handleUnavailableSelection(index, 1)} // Update day selection
+            >
               <option value="">เลือกวัน</option>
+              {Object.keys(days).map((day) => (
+                <option key={day} value={day}>{day}</option>
+              ))}
             </select>
           </div>
         ))}
         <button className="mt-2 w-full bg-gray-200 p-2 rounded-md" onClick={() => addGroup(setUnavailableDays)}>เพิ่มคน</button>
       </div>
 
-      <button className="mt-2 w-full bg-gray-600 text-white font-bold p-2 rounded-md" >จัดเวร</button>
-
+      <button
+        className="mt-2 w-full bg-gray-600 text-white font-bold p-2 rounded-md"
+        onClick={handleSchedule}
+      >
+        จัดเวร
+      </button>
     </div>
   );
 }
