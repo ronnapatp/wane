@@ -31,9 +31,27 @@ export default function ScheduleForm() {
   };
 
   const handleJobChange = (index, value) => {
-    const newJobs = [...job]; // Copy current state
-    newJobs[index] = value; // Update the specific index
-    setJob(newJobs); // Update state
+    const newJobs = [...job];
+    newJobs[index] = value;
+    setJob(newJobs);
+  };
+  
+  const removeJob = (index) => {
+    if (job.length > 1) {
+      setJob(job.filter((_, i) => i !== index)); // Remove job at given index
+    }
+  };
+
+  const removeGroup = (index) => {
+    setGroups(groups.filter((_, i) => i !== index));
+  };
+
+  const removeAvoidGroup = (index) => {
+    setAvoidGroups(avoidGroups.filter((_, i) => i !== index));
+  };
+
+  const removeUnavailableDay = (index) => {
+    setUnavailableDays(unavailableDays.filter((_, i) => i !== index));
   };
 
   const handleStudentSelection = (groupIndex, studentIndex, setFunction) => (e) => {
@@ -121,32 +139,52 @@ export default function ScheduleForm() {
           <div key={index} className="flex space-x-2 mt-2">
             <input
               className="w-full border p-2 rounded-md"
-              value={jobValue} // Bind value
-              onChange={(e) => handleJobChange(index, e.target.value)} // Update state on change
+              value={jobValue}
+              onChange={(e) => handleJobChange(index, e.target.value)}
             />
+            <button
+              className="bg-white text-white px-2 rounded-md"
+              onClick={() => removeJob(index)}
+              disabled={job.length === 1} // Disable if only 1 job left
+            >
+              ❌
+            </button>
           </div>
         ))}
-        <button className="mt-2 w-full bg-gray-200 p-2 rounded-md" onClick={() => addGroup(setJob)}>เพิ่มงาน</button>
+        <button
+          className="mt-2 w-full bg-gray-200 p-2 rounded-md"
+          onClick={() => setJob([...job, ""])}
+        >
+          เพิ่มงาน
+        </button>
       </div>
       
       <div>
         <h2 className="font-semibold">คนที่อยากอยู่วันเดียวกัน</h2>
         {groups.map((group, groupIndex) => (
-          <div key={groupIndex} className="p-3 border rounded-md mb-3">
-            <p className="font-medium">Group {groupIndex + 1}</p>
-            {group.map((student, studentIndex) => (
-              <select
-                key={studentIndex}
-                className="w-full mt-2 border p-2 rounded-md"
-                value={groups[groupIndex][studentIndex]}
-                onChange={handleStudentSelection(groupIndex, studentIndex, setGroups)}
-              >
-                <option value="">เลือกนักเรียน</option>
-                {studentNumbers.map((num) => (
-                  <option key={num} value={num}>นักเรียน {num}</option>
-                ))}
-              </select>
-            ))}
+          <div key={groupIndex} className="p-3 border rounded-md mb-3 flex items-center">
+            <div className="flex-1">
+              <p className="font-medium">Group {groupIndex + 1}</p>
+              {group.map((student, studentIndex) => (
+                <select
+                  key={studentIndex}
+                  className="w-full mt-2 border p-2 rounded-md"
+                  value={groups[groupIndex][studentIndex]}
+                  onChange={handleStudentSelection(groupIndex, studentIndex, setGroups)}
+                >
+                  <option value="">เลือกนักเรียน</option>
+                  {studentNumbers.map((num) => (
+                    <option key={num} value={num}>นักเรียน {num}</option>
+                  ))}
+                </select>
+              ))}
+            </div>
+            <button
+              className="ml-3 bg-white text-white px-2 rounded-md"
+              onClick={() => removeGroup(groupIndex)}
+            >
+              ❌
+            </button>
           </div>
         ))}
         <button className="mt-2 w-full bg-gray-200 p-2 rounded-md" onClick={() => addGroup(setGroups)}>เพิ่มกลุ่ม</button>
@@ -155,21 +193,29 @@ export default function ScheduleForm() {
       <div>
         <h2 className="font-semibold">คนที่ไม่อยากอยู่วันเดียวกัน</h2>
         {avoidGroups.map((group, groupIndex) => (
-          <div key={groupIndex} className="p-3 border rounded-md mb-3">
-            <p className="font-medium">Group {groupIndex + 1}</p>
-            {group.map((student, studentIndex) => (
-              <select
-                key={studentIndex}
-                className="w-full mt-2 border p-2 rounded-md"
-                value={avoidGroups[groupIndex][studentIndex]}
-                onChange={handleStudentSelection(groupIndex, studentIndex, setAvoidGroups)}
-              >
-                <option value="">เลือกนักเรียน</option>
-                {studentNumbers.map((num) => (
-                  <option key={num} value={num}>นักเรียน {num}</option>
-                ))}
-              </select>
-            ))}
+          <div key={groupIndex} className="p-3 border rounded-md mb-3 flex items-center">
+            <div className="flex-1">
+              <p className="font-medium">Group {groupIndex + 1}</p>
+              {group.map((student, studentIndex) => (
+                <select
+                  key={studentIndex}
+                  className="w-full mt-2 border p-2 rounded-md"
+                  value={avoidGroups[groupIndex][studentIndex]}
+                  onChange={handleStudentSelection(groupIndex, studentIndex, setAvoidGroups)}
+                >
+                  <option value="">เลือกนักเรียน</option>
+                  {studentNumbers.map((num) => (
+                    <option key={num} value={num}>นักเรียน {num}</option>
+                  ))}
+                </select>
+              ))}
+            </div>
+            <button
+              className="ml-3 bg-white text-white px-2 rounded-md"
+              onClick={() => removeAvoidGroup(groupIndex)}
+            >
+              ❌
+            </button>
           </div>
         ))}
         <button className="mt-2 w-full bg-gray-200 p-2 rounded-md" onClick={() => addGroup(setAvoidGroups)}>เพิ่มกลุ่ม</button>
@@ -178,11 +224,11 @@ export default function ScheduleForm() {
       <div>
         <h2 className="font-semibold">คนที่มีวันไม่ว่าง</h2>
         {unavailableDays.map((_, index) => (
-          <div key={index} className="flex space-x-2 mt-2">
+          <div key={index} className="flex items-center space-x-2 mt-2">
             <select
               className="w-1/2 border p-2 rounded-md"
-              value={unavailableDays[index][0]} // student ID
-              onChange={handleUnavailableSelection(index, 0)} // Update student selection
+              value={unavailableDays[index][0]}
+              onChange={handleUnavailableSelection(index, 0)}
             >
               <option value="">เลือกนักเรียน</option>
               {studentNumbers.map((num) => (
@@ -191,14 +237,20 @@ export default function ScheduleForm() {
             </select>
             <select
               className="w-1/2 border p-2 rounded-md"
-              value={unavailableDays[index][1]} // unavailable day
-              onChange={handleUnavailableSelection(index, 1)} // Update day selection
+              value={unavailableDays[index][1]}
+              onChange={handleUnavailableSelection(index, 1)}
             >
               <option value="">เลือกวัน</option>
               {Object.keys(days).map((day) => (
                 <option key={day} value={day}>{day}</option>
               ))}
             </select>
+            <button
+              className="ml-3 bg-white text-white px-2 rounded-md"
+              onClick={() => removeUnavailableDay(index)}
+            >
+              ❌
+            </button>
           </div>
         ))}
         <button className="mt-2 w-full bg-gray-200 p-2 rounded-md" onClick={() => addGroup(setUnavailableDays)}>เพิ่มคน</button>
