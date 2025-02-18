@@ -68,25 +68,28 @@ export default function ScheduleForm() {
 
   const handleSchedule = () => {
     const selectedDays = Object.keys(days).filter(day => days[day]);
+    const totalJobs = selectedDays.length * job.length; // Total job slots in a week
+  
+    if (studentCount > totalJobs) {
+      alert("จำนวนนักเรียนมากเกิน กรุณาเพิ่มงาน");
+      return;
+    }
   
     // Format groups and avoidGroups to remove empty values
     const formattedGroups = groups.map(group => 
       group.filter(student => student !== "").map(Number)
     );
     const formattedAvoidGroups = avoidGroups.map(group => group.filter(student => student !== "").map(Number));
-    
+  
     // Format unavailableDays to match the expected format [studentId, 'day']
     const formattedUnavailableDays = unavailableDays
-    .filter(entry => entry[0] !== "" && entry[1] !== "")
-    .map(entry => [Number(entry[0]), entry[1]]);
-
-    console.log(formattedUnavailableDays)
-    console.log(formattedGroups)
-    
+      .filter(entry => entry[0] !== "" && entry[1] !== "")
+      .map(entry => [Number(entry[0]), entry[1]]);
   
     const result = schedule(selectedDays, job, studentCount, formattedGroups, formattedAvoidGroups, formattedUnavailableDays);
-
-    console.log(result)
+  
+    console.log(result);
+    
     // Redirect to the result page with the schedule data
     const queryParams = new URLSearchParams({
       data: JSON.stringify(result)

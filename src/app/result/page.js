@@ -22,11 +22,11 @@ function ResultContent() {
   }
 
   const [days, dutyNames, studentAssignments] = parsedResult;
-  const maxDuties = Math.max(...studentAssignments.map(dayDuty => dayDuty.length));
-  const paddedDuties = studentAssignments.map(dayDuty => [
-    ...dayDuty,
-    ...Array(maxDuties - dayDuty.length).fill(null)
-  ]);
+  const maxDuties = Math.max(dutyNames.length, ...studentAssignments.map(dayDuty => dayDuty.length));
+  const paddedDuties = studentAssignments.map(dayDuty => {
+    const filledDuties = Array.from({ length: maxDuties }, (_, i) => dayDuty[i] ?? '-');
+    return filledDuties;
+  });
 
   return (
     <div className="max-w-6xl mt-10 mx-auto p-4 sm:p-6 bg-white shadow-lg rounded-2xl text-black">
