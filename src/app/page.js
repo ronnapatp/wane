@@ -27,7 +27,7 @@ export default function ScheduleForm() {
   const availableStudents = studentNumbers.filter(num => !selectedStudents.has(num));
 
   const addGroup = (setFunction) => {
-    setFunction((prev) => [...prev, ['', '']]); // Add an empty student and day pair
+    setFunction((prev) => [...prev, ['', '']]);
   };
 
   const handleJobChange = (index, value) => {
@@ -38,7 +38,7 @@ export default function ScheduleForm() {
   
   const removeJob = (index) => {
     if (job.length > 1) {
-      setJob(job.filter((_, i) => i !== index)); // Remove job at given index
+      setJob(job.filter((_, i) => i !== index)); 
     }
   };
 
@@ -74,7 +74,6 @@ export default function ScheduleForm() {
     const newUnavailableDays = [...unavailableDays];
     const value = e.target.value;
   
-    // Update the corresponding day (type 1) for the student (type 0)
     if (type === 1) {
       newUnavailableDays[index][1] = value;
     } else {
@@ -86,7 +85,7 @@ export default function ScheduleForm() {
 
   const handleSchedule = () => {
     const selectedDays = Object.keys(days).filter(day => days[day]);
-    const totalJobs = selectedDays.length * job.length; // Total job slots in a week
+    const totalJobs = selectedDays.length * job.length;
   
     if (studentCount > totalJobs) {
       alert("จำนวนนักเรียนมากเกิน กรุณาเพิ่มงาน");
@@ -99,7 +98,6 @@ export default function ScheduleForm() {
     );
     const formattedAvoidGroups = avoidGroups.map(group => group.filter(student => student !== "").map(Number));
   
-    // Format unavailableDays to match the expected format [studentId, 'day']
     const formattedUnavailableDays = unavailableDays
       .filter(entry => entry[0] !== "" && entry[1] !== "")
       .map(entry => [Number(entry[0]), entry[1]]);
@@ -108,7 +106,6 @@ export default function ScheduleForm() {
   
     console.log(result);
     
-    // Redirect to the result page with the schedule data
     const queryParams = new URLSearchParams({
       data: JSON.stringify(result)
     }).toString();
@@ -145,7 +142,7 @@ export default function ScheduleForm() {
             <button
               className="bg-white text-white px-2 rounded-md"
               onClick={() => removeJob(index)}
-              disabled={job.length === 1} // Disable if only 1 job left
+              disabled={job.length === 1} 
             >
               ❌
             </button>
