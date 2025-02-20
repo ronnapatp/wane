@@ -1,38 +1,36 @@
+const days = {Monday: true,
+    Tuesday: true,
+    Wednesday: true,
+    Thursday: true,
+    Friday: true} // also not used
 
-// const days = {Monday: true,
-//     Tuesday: true,
-//     Wednesday: true,
-//     Thursday: true,
-//     Friday: true} // also not used
-
-// const job = ['mopping']; // not actually used
-// const studentCount = 15;
-// const groups = [[1,2,3,4],[5,6],[7,8,9,10]]; // distinct elements
-// const avoidGroups = [[1,5],[5,9]]; // may only take pairs
-// const unavailableDays = [[2,["Tuesday","Wednesday","Thursday","Friday"]]]; // may not include all 5 days
+const job = ['mopping']; // not actually used
+const studentCount = 15;
+const groups = [[1,2,3,4],[5,6],[7,8,9,10]]; // distinct elements
+const avoidGroups = [[1,5],[5,9]]; // may only take pairs
+const unavailableDays = [[2,"Monday"],[2,"Wednesday"]]; // may not include all 5 days
 // // there is probability that a group maybe avoided
 
 export default function schedule(days, job, studentCount, groups, avoidGroups, unavailableDays) { 
-  const dayCount = days.length; 
+  const dayCount = days.length;
   const restraint = Array.from({ length: dayCount }, () => [[], []]);
   const out = Array.from({ length: dayCount }, (_, i) => [0, i]);
   const students = []; 
   const grouped = [];
   const wdays = Array.from({ length: dayCount }, () => []);
   const mdays = Array.from({ length: dayCount }, () => []);
-
+    const ext = [];
+    for(let i = 0; i<= studentCount; i++){
+        ext.push(0);
+    }
   for (let i = 0; i < groups.length; i++) {
       for (let j = 0; j < groups[i].length; j++) {
-          grouped.push(groups[i][j]);
+          ext[groups[i][j]] = 1;
       }
   }
-  grouped.sort((a, b) => a.length - b.length);
-  grouped.push(studentCount + 1);
-  for (let i = 0, mod = 1; i <= studentCount; i++) {
-      if (grouped[i] > i + mod) {
-          groups.push([mod + i]);
-          mod++;
-          i--;
+  for (let i = 1; i <= studentCount; i++) {
+      if (ext[i] == 0) {
+            groups.push([i]);
       }
   }
   for (let i = 0; i < groups.length; i++) {
@@ -46,7 +44,6 @@ export default function schedule(days, job, studentCount, groups, avoidGroups, u
           }
       }
   }
-  console.log(students);
   for (let i = 0; i < avoidGroups.length; i++) {
       for (let j = 0, id1 = avoidGroups[i][0], id2 = avoidGroups[i][1]; j < students.length; j++) {
           if (students[j][1].includes(id1) && !students[j][3].includes(id2)) {
@@ -61,7 +58,8 @@ export default function schedule(days, job, studentCount, groups, avoidGroups, u
       if (b[2].length == a[2].length) return b[3].length - a[3].length;
       return b[2].length - a[2].length;
   });
-  function canAccept(item, pointer, wdays) {
+  console.log(students);
+  function canAccept(item, pointer, wdays,dayCount) {
       for (let d = 0; d < dayCount; d++) {
           if (pointer == d && !item[2].includes(days[d])) {
               for (let i = 0; i < item[3].length; i++) {
@@ -80,7 +78,7 @@ export default function schedule(days, job, studentCount, groups, avoidGroups, u
       const item = students[i];
       out.sort((a, b) => a[0] - b[0]);
       for (let j = 0; j < dayCount; j++) {
-          if (canAccept(item, out[j][1], wdays)) {
+          if (canAccept(item, out[j][1], wdays,dayCount)) {
               out[j][0] += item[0];
               for (let k = 0; k < item[3].length; k++) {
                   if (!wdays[out[j][1]].includes(item[3][k])) {
@@ -101,20 +99,4 @@ export default function schedule(days, job, studentCount, groups, avoidGroups, u
   return [days, job, mdays];
 }
 
-// console.log(schedule(days, job, studentCount, groups, avoidGroups, unavailableDays));
-
-// [
-//     [
-//       4,
-//       [ 1, 2, 3, 4 ],
-//       [ 'Tuesday', 'Wednesday', 'Thursday', 'Friday' ],
-//       [ 5 ]
-//     ],
-//     [ 2, [ 5, 6 ], [], [ 1, 9 ] ],
-//     [ 4, [ 7, 8, 9, 10 ], [], [ 5 ] ],
-//     [ 1, [ 11 ], [], [] ],
-//     [ 1, [ 12 ], [], [] ],
-//     [ 1, [ 13 ], [], [] ],
-//     [ 1, [ 14 ], [], [] ],
-//     [ 1, [ 15 ], [], [] ]
-//   ]
+// console.log(schedule(days, job, studentCount, groups, avoidGroups, unavailableDays)[2]);
