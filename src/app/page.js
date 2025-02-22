@@ -101,6 +101,8 @@ export default function ScheduleForm() {
       alert("จำนวนงานมากเกิน กรุณาลดงาน");
       return;
     }
+
+    
   
     // Format groups and avoidGroups to remove empty values
     const formattedGroups = groups.map(group =>
@@ -111,11 +113,27 @@ export default function ScheduleForm() {
     const formattedUnavailableDays = unavailableDays
       .filter(entry => entry[0] !== "" && entry[1] !== "")
       .map(entry => [Number(entry[0]), entry[1]]);
+
+    for(let i = 0; i<formattedGroups.length; i++){
+      if(formattedGroups[i].length > job.length){
+        alert("ในกลุ่มของคนที่อยากอยู่ด้วยกันมีสมาชิกมากกว่าจำนวนหน้าที่ต่อวัน")
+        return;
+      }
+    }
+
+    for(let i = 0; i<formattedAvoidGroups.length; i++){
+      if(formattedAvoidGroups[i].length > job.length){
+        alert("ในกลุ่มของคนที่ไม่อยากอยู่ด้วยกันมีสมาชิกมากกว่าจำนวนหน้าที่ต่อวัน")
+        return;
+      }
+    }
+
+    // console.log(formattedGroups);
   
     // Pass the full studentNames array, not just the length
     const result = schedule(selectedDays, job, studentNames.length, formattedGroups, formattedAvoidGroups, formattedUnavailableDays, studentNames);
   
-    console.log(result);
+    // console.log(result);
   
     // Format result for output on the page
     const formattedResult = result[2].map((dayStudents, index) => {
